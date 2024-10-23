@@ -158,6 +158,7 @@ let
     rev = "9d639cd79d6b73081fadb3474dd7d73b89732e7b";
     hash = "sha256-+2JCaPp+c2BRM60xFCeY0pixIyo2a3rpTPaSt1kTfDw=";
   };
+  disableAVX = if stdenv.hostPlatform.system == "aarch64-linux" then "--disable-wasm-avx" else "";
 in
 buildStdenv.mkDerivation (finalAttrs: {
   pname = "zen-browser-unwrapped";
@@ -279,6 +280,7 @@ buildStdenv.mkDerivation (finalAttrs: {
     [
       "--disable-bootstrap"
       "--disable-updater"
+      "${disableAVX}"
       "--enable-default-toolkit=cairo-gtk3${lib.optionalString waylandSupport "-wayland"}"
       "--enable-system-pixman"
       "--with-distribution-id=org.nixos"
@@ -314,6 +316,34 @@ buildStdenv.mkDerivation (finalAttrs: {
     ];
 
   configureScript = writeShellScript "configureMozconfig" ''
+    ${
+      if stdenv.hostPlatform.system == "aarch64-linux" then
+        ''
+          echo "ac_add_options --with-libclang-path=/usr/lib64" >> ./configs/linux/mozconfig
+
+          # linux mozconfig
+          sed -i 's/x86-\(64\|64-v3\)/native/g' ./configs/linux/mozconfig
+          sed -i 's/x86_64-pc-linux/aarch64-linux-gnu/g' ./configs/linux/mozconfig
+
+          # eme/widevine must be disabled on arm64 (thx google)
+          sed -i '/--enable-eme/s/^/# /' ./configs/common/mozconfig
+          sed -i 's/-msse3//g' ./configs/linux/mozconfig
+          sed -i 's/-mssse3//g' ./configs/linux/mozconfig
+          sed -i 's/-msse4.1//g' ./configs/linux/mozconfig
+          sed -i 's/-msse4.2//g' ./configs/linux/mozconfig
+          sed -i 's/-mavx2//g' ./configs/linux/mozconfig
+          sed -i 's/-mavx//g' ./configs/linux/mozconfig
+          sed -i 's/-mfma//g' ./configs/linux/mozconfig
+          sed -i 's/-maes//g' ./configs/linux/mozconfig
+          sed -i 's/-mpopcnt//g' ./configs/linux/mozconfig
+          sed -i 's/-mpclmul//g' ./configs/linux/mozconfig
+          sed -i 's/+avx2//g' ./configs/linux/mozconfig
+          sed -i 's/+sse4.1//g' ./configs/linux/mozconfig
+        ''
+      else
+        ""
+    }
+
     for flag in $@; do
       echo "ac_add_options $flag" >> mozconfig
     done
@@ -386,7 +416,10 @@ buildStdenv.mkDerivation (finalAttrs: {
       matthewpi
       titaniumtown
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
   };
 
   enableParallelBuilding = true;
