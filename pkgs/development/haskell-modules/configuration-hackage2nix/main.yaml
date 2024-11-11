@@ -224,16 +224,6 @@ package-maintainers:
     - tlynx
     - xmonad
     - xmonad-contrib
-  expipiplus1:
-    - VulkanMemoryAllocator
-    - autoapply
-    - exact-real
-    - language-c
-    - orbits
-    - update-nix-fetchgit
-    - vector-sized
-    - vulkan
-    - vulkan-utils
   erictapen:
     - hakyll
   evenbrenden:
@@ -652,6 +642,8 @@ package-maintainers:
     - minio-hs
     - smtp-mail
     - pdftotext
+  wolfgangwalther:
+    - postgrest
 
 unsupported-platforms:
   Allure:                                       [ platforms.darwin ]

@@ -34,6 +34,8 @@
   git,
   apple-sdk_15,
   darwinMinVersionHook,
+  makeWrapper,
+  nodePackages_latest,
 
   withGLES ? false,
 }:
@@ -88,19 +90,21 @@ let
 in
 rustPlatform.buildRustPackage rec {
   pname = "zed-editor";
-  version = "0.159.5";
+  version = "0.160.7";
 
   src = fetchFromGitHub {
     owner = "zed-industries";
     repo = "zed";
     rev = "refs/tags/v${version}";
-    hash = "sha256-60P5AicvJIN1B/JXe2moHTl4L+7+DWhYak0jciHJGoQ=";
+    hash = "sha256-mbBETOZVXTcfS+yGWPqEh+NEjo6UMTvk3XMghd8+s/s=";
   };
 
   patches =
     [
       # Zed uses cargo-install to install cargo-about during the script execution.
       # We provide cargo-about ourselves and can skip this step.
+      # Until https://github.com/zed-industries/zed/issues/19971 is fixed,
+      # we also skip any crate for which the license cannot be determined.
       ./0001-generate-licenses.patch
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
@@ -136,17 +140,20 @@ rustPlatform.buildRustPackage rec {
     };
   };
 
-  nativeBuildInputs = [
-    clang
-    cmake
-    copyDesktopItems
-    curl
-    perl
-    pkg-config
-    protobuf
-    rustPlatform.bindgenHook
-    cargo-about
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ cargo-bundle ];
+  nativeBuildInputs =
+    [
+      clang
+      cmake
+      copyDesktopItems
+      curl
+      perl
+      pkg-config
+      protobuf
+      rustPlatform.bindgenHook
+      cargo-about
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [ makeWrapper ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ cargo-bundle ];
 
   dontUseCmakeConfigure = true;
 
@@ -206,14 +213,16 @@ rustPlatform.buildRustPackage rec {
   RUSTFLAGS = if withGLES then "--cfg gles" else "";
   gpu-lib = if withGLES then libglvnd else vulkan-loader;
 
-  # Enable back when https://github.com/zed-industries/zed/issues/19971 is fixed
-  # preBuild = ''
-  #   bash script/generate-licenses
-  # '';
+  preBuild = ''
+    bash script/generate-licenses
+  '';
 
   postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     patchelf --add-rpath ${gpu-lib}/lib $out/libexec/*
     patchelf --add-rpath ${wayland}/lib $out/libexec/*
+    wrapProgram $out/libexec/zed-editor --suffix PATH : ${
+      lib.makeBinPath [ nodePackages_latest.nodejs ]
+    }
   '';
 
   preCheck = ''

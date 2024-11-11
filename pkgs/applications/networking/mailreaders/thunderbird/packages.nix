@@ -53,11 +53,24 @@ let
   };
 
 in rec {
-  thunderbird = thunderbird-128;
+  # Upstream claims -latest is "for testing purposes only". Stick to -esr until this changes.
+  thunderbird = thunderbird-esr;
+
+  thunderbird-latest = common {
+    version = "132.0";
+    sha512 = "71206606d691e3b257b4b163e56604eaff221a43f88015fcbdbbbb3bbd708a7459f61b0470f7534ce9adafd41561e11b3487484fbfe3e95a06674785cae97029";
+
+    updateScript = callPackage ./update.nix {
+      attrPath = "thunderbirdPackages.thunderbird-latest";
+    };
+  };
+
+  # Eventually, switch to an updateScript without versionPrefix hardcoded...
+  thunderbird-esr = thunderbird-128;
 
   thunderbird-128 = common {
-    version = "128.4.0esr";
-    sha512 = "ad031b3a9b738598358cead23cf8438435016222cd9a474c31892dc1b3db43d2d5d3a10c9639df770dc76eb3c0bc9db8be8beab84828d54ee50fc1e03f0da0a5";
+    version = "128.4.2esr";
+    sha512 = "4e37b77eb4652bc36585656bd3fe5416053f6a1a96ed1ca64c17d8d73031c746cb3832fd275d25f1283d20e18aa3e7b1df6d67864ced21b5f73042a42767cb45";
 
     updateScript = callPackage ./update.nix {
       attrPath = "thunderbirdPackages.thunderbird-128";

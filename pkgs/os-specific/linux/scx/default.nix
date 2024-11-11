@@ -39,7 +39,7 @@ let
             zlib
           ] ++ (args.buildInputs or [ ]);
 
-          env.LIBCLANG_PATH = args.env.LIBCLANG_PATH or "${llvmPackages.libclang.lib}/lib";
+          env.LIBCLANG_PATH = args.env.LIBCLANG_PATH or "${lib.getLib llvmPackages.libclang}/lib";
 
           # Needs to be disabled in BPF builds
           hardeningDisable = [
@@ -69,7 +69,7 @@ let
     { rlfifo = import ./scx_rlfifo; }
     { rustland = import ./scx_rustland; }
     { rusty = import ./scx_rusty; }
-    { csheds = import ./scx_csheds.nix; }
+    { cscheds = import ./scx_cscheds.nix; }
     { full = import ./scx_full.nix; }
   ];
 in

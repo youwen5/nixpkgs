@@ -449,7 +449,6 @@ with lib.maintainers;
   haskell = {
     members = [
       cdepillabout
-      expipiplus1
       maralorn
       ncfavier
       sternenseemann
@@ -465,6 +464,7 @@ with lib.maintainers;
     members = [
       das_j
       conni2461
+      helsinki-Jo
     ];
     scope = "Group registration for packages maintained by Helsinki Systems";
     shortName = "Helsinki Systems employees";
@@ -495,6 +495,19 @@ with lib.maintainers;
     ];
     scope = "Input-Output Global employees, which maintain critical software";
     shortName = "Input-Output Global employees";
+  };
+
+  java = {
+    githubTeams = [ "java" ];
+    members = [
+      chayleaf
+      fliegendewurst
+      infinidoge
+      tomodachi94
+    ];
+    shortName = "Java";
+    scope = "Maintainers of the Nixpkgs Java ecosystem (JDK, JVM, Java, Gradle, Maven, Ant, and adjacent projects)";
+    enableFeatureFreezePing = true;
   };
 
   jitsi = {
@@ -845,9 +858,14 @@ with lib.maintainers;
   };
 
   postgres = {
-    members = [ thoughtpolice ];
+    members = [
+      thoughtpolice
+      ma27
+      wolfgangwalther
+    ];
     scope = "Maintain the PostgreSQL package and plugins along with the NixOS module.";
     shortName = "PostgreSQL";
+    enableFeatureFreezePing = true;
   };
 
   python = {

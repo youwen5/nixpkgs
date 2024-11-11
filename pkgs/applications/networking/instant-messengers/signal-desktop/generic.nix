@@ -157,6 +157,7 @@ stdenv.mkDerivation rec {
     libXrender
     libXtst
     libappindicator-gtk3
+    libpulseaudio
     libnotify
     libuuid
     mesa # for libgbm
@@ -174,7 +175,6 @@ stdenv.mkDerivation rec {
     libnotify
     libdbusmenu
     pipewire
-    stdenv.cc.cc
     xdg-utils
     wayland
   ];
@@ -236,7 +236,7 @@ stdenv.mkDerivation rec {
 
     # Fix the desktop link
     substituteInPlace $out/share/applications/${pname}.desktop \
-      --replace "/opt/${dir}/${pname}" $out/bin/${pname} \
+      --replace-fail "/opt/${dir}/${pname}" $out/bin/${pname} \
       --replace-fail "StartupWMClass=Signal" "StartupWMClass=signal"
 
     # Note: The following path contains bundled libraries:
